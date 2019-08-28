@@ -5,12 +5,16 @@ $screen-desktop-min: 972px;
 
 $container-max-width: 1228px;
 
-
 // Colours
 $black: #000;
 $white: #fff;
-$blue: #0060DF;
-$light-blue: #F2FCFD;
+$blue: #0060df;
+$light-blue: #f2fcfd;
+$box-shadow: #d7d7db;
 
-$border-grey: #2F2F2F;
-$search-font-color: #CECECE;
+$border-grey: #2f2f2f;
+$search-font-color: #cecece;
+
+// Fonts
+$primary-font: "Zilla Slab", serif;
+$secondary-font: "Open Sans", sans-serif;

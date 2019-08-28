@@ -20,6 +20,7 @@ add_filter('nav_menu_css_class', 'mozilla_add_active_page' , 10 , 2);
 
 // Include theme style.css file not in admin page
 if(!is_admin()) 
+    wp_enqueue_style( 'wpb-google-fonts', 'https://fonts.googleapis.com/css?family=Open+Sans:300,400|Zilla+Slab&display=swap', false ); 
     wp_enqueue_style('style', get_stylesheet_uri());
 
 function remove_admin_login_header() {
