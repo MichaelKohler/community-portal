@@ -84,3 +84,10 @@ function mozilla_upload_image() {
     }
 	die();
 }
+
+function add_query_vars_filter( $vars ){
+  $vars[] = "view";
+  return $vars;
+}
+
+add_filter( 'query_vars', 'add_query_vars_filter' );
