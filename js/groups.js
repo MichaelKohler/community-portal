@@ -1,16 +1,17 @@
 jQuery(function(){
 
     Dropzone.autoDiscover = false;
+    
     jQuery("#group-photo-uploader").dropzone({
         url: '/wp-admin/admin-ajax.php?action=upload_group_image',
         acceptedFiles: 'image/*',
         maxFiles: 1,
         createImageThumbnails: false,
+        addRemoveLinks: true,
         init: function() {
             this.on("sending", function(file, xhr, formData){
                 var nonce = jQuery('#my_nonce_field').val();
                 formData.append('my_nonce_field', nonce);
-
             });
         },
         success: function (file, response) {
@@ -20,15 +21,109 @@ jQuery(function(){
             
             jQuery('#image-url').val(response);
             jQuery('.dz-image').css('background-image', 'url(' +  response + ')');
+
+            jQuery('.create-group__image-upload').removeClass('create-group__image-upload--uploading');
+            jQuery('.create-group__image-upload').addClass('create-group__image-upload--done');
+            jQuery('.create-group__image-instructions').addClass('create-group__image-instructions--hide');
         },
         error: function (file, response) {
             file.previewElement.classList.add("dz-error");
         },
-        addRemoveLinks: true,
+        sending: function(file, xhr, formData) {
+            jQuery('.create-group__image-upload').removeClass('create-group__image-upload--done');
+            jQuery('.create-group__image-upload').addClass('create-group__image-upload--uploading');
+        },
         removedfile: function(file) {
-            return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;        
+            jQuery('.create-group__image-upload').removeClass('create-group__image-upload--done');   
+            jQuery('.create-group__image-instructions--hide').removeClass('create-group__image-instructions--hide');
+            return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;     
         }
     });
 
+
+    jQuery('.create-group__tag').click(function(e) {
+        e.preventDefault();
+        var $this = jQuery(this);
+        var tag = $this.data('value');
+        var current = jQuery('#tags').val();
+
+        if(!$this.hasClass('create-group__tag--active'))
+            jQuery('#tags').val(current + ',' + tag);
+        
+        if($this.hasClass('create-group__tag--active'))
+            jQuery('#tags').val(current.replace(',' + tag, ''));
+
+        $this.toggleClass('create-group__tag--active');
+
+        return false;
+    });
+
+
+
+    jQuery('.create-group__input, .create-group__textarea, .create-group__select').on('change keyup paste', function(){
+        var $this = jQuery(this);
+        if($this.val() != '' || $this.val() == '0') {
+            $this.removeClass('create-group__input--error');
+            $this.next('.form__error-container').removeClass('form__error-container--visible');
+        } else {
+            $this.addClass('create-group__input--error');
+            $this.next('.form__error-container').addClass('form__error-container--visible');
+        }
+
+    });
+
+    jQuery('#create-group-form').one('submit', function(e){
+        e.preventDefault();
+        var error = false;
+        jQuery(':input[required]').each(function(index, element){
+            var $ele = jQuery(element);
+            var $errorMsg = $ele.next('.form__error-container');
+
+            if($ele.val() == "" || $ele.val() == "0" || ($ele.is(':checkbox') && $ele.prop("checked") === false)) {
+                error = true;
+
+                if($ele.is(':checkbox')) {
+                    var checkboxes = $ele.siblings('.create-group__check');
+                    if(checkboxes.length === 1) {
+                        jQuery(checkboxes[0]).addClass('create-group__check--error');
+                    }
+                } else {
+                    $ele.addClass("create-group__input--error");
+                }
+                $errorMsg.addClass('form__error-container--visible');
+            }
+        });
+
+        if(error) {
+            jQuery('#create-group-form').find('.create-group__input--error:first').focus();
+            return false;
+        } else {
+    
+            jQuery(this).submit();
+            return true;
+        }
+        
+    });
+
+
+    jQuery('input[name="group_type"]').change(function(e){
+        var $this = jQuery(this);
+
+        var countryLabel = jQuery('label[for="group-country"]').text();
+        var cityLabel = jQuery('label[for="group-city"]').text();
+
+        if($this.val() == 'Offline') {
+            jQuery('select[name="group_country"]').prop('required', true);
+            jQuery('label[for="group-country"]').text(countryLabel.replace('*', ''));
+            jQuery('input[name="group_city"]').prop('required', true);
+            jQuery('label[for="group-city"]').text(cityLabel.replace('*', ''));
+        } else {
+            jQuery('select[name="group_country"]').prop('required', false);
+            jQuery('label[for="group-country"]').text(countryLabel.concat(' *'));
+            jQuery('input[name="group_city"]').prop('required', false);
+            jQuery('label[for="group-city"]').text(cityLabel.concat(' *'));
+        }
+
+    });
 
 });
